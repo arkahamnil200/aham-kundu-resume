@@ -1,0 +1,993 @@
+/* ==========================================================================
+   Aham Kundu: personal resume website
+   External stylesheet (linked from index.html)
+
+   Contents
+   1.  Design tokens        CSS custom properties for colour, type and spacing
+   2.  Base elements        element selectors, box model reset, typography
+   3.  Shared helpers       container, skip link, buttons, focus styles
+   4.  Header and nav       Flexbox, sticky positioning, hover underline
+   5.  Hero                 CSS Grid, gradients, one page-load animation
+   6.  Section shell        CSS Grid with a sticky margin heading
+   7.  Section content      prose, timeline, cards, lists, tags
+   8.  Contact and footer   ID selector, Grid, Flexbox
+   9.  Responsive rules     media queries for tablets and phones
+   10. Reduced motion       accessibility preference
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   Custom properties are declared once on :root and reused everywhere with
+   var(). Changing a value here updates the whole website consistently.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Colour: deep navy and near-black backgrounds */
+  --ink: #060a13;                           /* page background            */
+  --navy: #0a1120;                          /* lighter navy for gradients */
+  --panel: #0f192c;                         /* raised panels              */
+
+  /* Colour: typography */
+  --heading: #f3f6fb;                       /* headings, near white       */
+  --text: #c8d1df;                          /* body text, light grey      */
+  --muted: #8c99ae;                         /* secondary text             */
+
+  /* Colour: accent (cyan to electric blue) */
+  --accent: #56d4f5;
+  --accent-deep: #2f7bff;
+  --glow: rgba(86, 212, 245, 0.28);
+
+  /* Colour: hairline borders */
+  --line: rgba(148, 178, 255, 0.14);
+  --line-strong: rgba(148, 178, 255, 0.26);
+
+  /* Typography */
+  --font-display: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  /* Spacing and shape */
+  --page-gutter: 1.5rem;                    /* space at the screen edges  */
+  --section-space: 5.5rem;                  /* vertical space per section */
+  --radius-small: 4px;                      /* buttons and tags           */
+  --radius: 10px;                           /* cards and panels           */
+  --header-height: 4.25rem;
+
+  /* Motion */
+  --transition: 220ms ease;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. BASE ELEMENTS (element selectors)
+   -------------------------------------------------------------------------- */
+
+/* Box model: padding and border are included in an element's width */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;                                   /* smooth jump to anchors */
+  scroll-padding-top: calc(var(--header-height) + 1rem);     /* keeps headings clear of the sticky header */
+}
+
+body {
+  margin: 0;
+  background-color: var(--ink);
+  /* Subtle gradient: the top of the page is slightly lighter navy */
+  background-image: linear-gradient(180deg, var(--navy) 0%, var(--ink) 40rem);
+  background-repeat: no-repeat;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+abbr {
+  text-decoration: none;
+}
+
+/* Colour of text selected with the mouse */
+::selection {
+  background-color: rgba(86, 212, 245, 0.3);
+  color: #ffffff;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. SHARED HELPERS (class selectors)
+   -------------------------------------------------------------------------- */
+
+/* Centres the content and limits its maximum width */
+.container {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+}
+
+/* Skip link: hidden above the page until it receives keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -5rem;
+  left: 1rem;
+  z-index: 20;
+  padding: 0.6rem 1rem;
+  background-color: var(--accent);
+  border-radius: var(--radius-small);
+  color: #04101f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Keyboard focus ring, shown only when navigating with the keyboard */
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Buttons (links styled as buttons) */
+.button {
+  display: inline-block;
+  padding: 0.8rem 1.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-small);
+  color: var(--heading);
+  font-size: 0.975rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform var(--transition), box-shadow var(--transition),
+              border-color var(--transition), color var(--transition);
+}
+
+.button-primary {
+  background-image: linear-gradient(135deg, var(--accent-deep), var(--accent));
+  border-color: transparent;
+  color: #04101f;
+  font-weight: 600;
+}
+
+.button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -12px rgba(86, 212, 245, 0.65);
+}
+
+.button-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   4. HEADER AND NAVIGATION (Flexbox + sticky positioning)
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky;                          /* stays at the top while scrolling */
+  top: 0;
+  z-index: 10;
+  background-color: rgba(6, 10, 19, 0.86);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);               /* frosted effect over page content */
+  border-bottom: 1px solid var(--line);
+}
+
+/* Flexbox: name on the left, links on the right, vertically centred */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  min-height: var(--header-height);
+}
+
+.brand {
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Flexbox again: the list items sit in a single row */
+.site-nav ul {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.site-nav a {
+  position: relative;                        /* anchor for the underline below */
+  display: block;
+  padding: 0.5rem 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+
+/* Pseudo-element: a glowing underline that starts with zero width */
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.2rem;
+  height: 1px;
+  background-color: var(--accent);
+  box-shadow: 0 0 8px var(--glow);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition);
+}
+
+/* Pseudo-classes: the underline grows on hover and on keyboard focus */
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--heading);
+}
+
+.site-nav a:hover::after,
+.site-nav a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+
+/* --------------------------------------------------------------------------
+   5. HERO (CSS Grid + gradients + one page-load animation)
+   -------------------------------------------------------------------------- */
+.hero {
+  position: relative;
+  overflow: hidden;                          /* hides the edge of the glow */
+  padding: 6.5rem 0 6rem;
+}
+
+/* Soft blue glow behind the hero, drawn with a radial gradient */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -18rem;
+  right: -12rem;
+  width: 46rem;
+  height: 46rem;
+  background-image: radial-gradient(circle,
+      rgba(47, 123, 255, 0.24) 0%,
+      rgba(86, 212, 245, 0.08) 38%,
+      transparent 68%);
+  pointer-events: none;
+}
+
+/* Grid: text column and profile panel side by side */
+.hero-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 4.5rem;
+  align-items: center;
+}
+
+.hero-name {
+  font-size: clamp(3.5rem, 9vw, 6.75rem);    /* scales with the screen width */
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+.hero-tagline {
+  max-width: 24em;
+  margin: 1.75rem 0 1rem;
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.05rem);
+  line-height: 1.3;
+}
+
+.hero-lede {
+  max-width: 34em;
+  margin: 0;
+  color: var(--muted);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2.25rem;
+}
+
+/* Profile summary panel */
+.profile-sheet {
+  position: relative;
+  padding: 1.75rem 2rem;
+  background-image: linear-gradient(160deg, rgba(20, 32, 56, 0.92), rgba(11, 19, 34, 0.92));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.85),
+              0 0 70px -24px rgba(47, 123, 255, 0.45);
+}
+
+/* A thin line of light along the top edge of the panel */
+.profile-sheet::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 2rem;
+  right: 2rem;
+  height: 1px;
+  background-image: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Works for the monogram now and for a photograph later */
+.portrait {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 24px -4px var(--glow);
+}
+
+.sheet-title {
+  margin: 0;
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+/* Each row of the summary is a small two-column grid: label and value */
+.sheet-row {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.sheet-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.sheet-row dt {
+  color: var(--muted);
+}
+
+.sheet-row dd {
+  color: var(--heading);
+}
+
+/* One orchestrated entrance when the page loads: each part of the hero
+   rises into place slightly after the one before it. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-text > *,
+.profile-sheet {
+  animation: rise 800ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.hero-text > :nth-child(2) { animation-delay: 120ms; }
+.hero-text > :nth-child(3) { animation-delay: 220ms; }
+.hero-text > :nth-child(4) { animation-delay: 320ms; }
+.profile-sheet             { animation-delay: 420ms; }
+
+
+/* --------------------------------------------------------------------------
+   6. SECTION SHELL (CSS Grid with a sticky margin heading)
+   Every section uses the same two-column grid: the heading sits in a narrow
+   left column, like a margin heading in a report, and the content sits in
+   the wide right column.
+   -------------------------------------------------------------------------- */
+.section {
+  padding: var(--section-space) 0;
+  border-top: 1px solid var(--line);
+}
+
+.section-inner {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 3.5rem;
+}
+
+/* Lets long content shrink to fit its grid column instead of overflowing */
+.section-body {
+  min-width: 0;
+}
+
+.section-title {
+  position: sticky;                          /* heading stays in view while its section scrolls */
+  top: calc(var(--header-height) + 2rem);
+  align-self: start;
+  font-size: 2.35rem;
+  line-height: 1.1;
+}
+
+/* :target matches the section whose link was just clicked in the navigation */
+.section:target .section-title {
+  color: var(--accent);
+}
+
+.subheading {
+  margin-bottom: 1.25rem;
+  font-size: 1.6rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   7. SECTION CONTENT
+   -------------------------------------------------------------------------- */
+
+/* About: comfortable line length for reading */
+.prose p {
+  max-width: 40em;
+}
+
+.prose p:first-child {
+  color: var(--heading);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* Education: vertical timeline ------------------------------------------- */
+.timeline {
+  list-style: none;
+  border-left: 1px solid var(--line-strong);  /* the timeline's vertical line */
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 0 0 2.5rem 2rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+/* The dot on the line, positioned absolutely against its list item */
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  left: -5px;
+  width: 9px;
+  height: 9px;
+  background-color: var(--ink);
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+}
+
+/* The current (first) entry gets a glowing accent dot */
+.timeline-item:first-child::before {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(86, 212, 245, 0.15), 0 0 14px var(--glow);
+}
+
+.timeline-date {
+  margin: 0;
+  padding-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.timeline-content h3 {
+  font-size: 1.65rem;
+}
+
+.timeline-role {
+  margin: 0.35rem 0 0.25rem;
+  color: var(--heading);
+}
+
+.timeline-detail {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Cards (shared by Achievements and Qualifications) ---------------------- */
+.card {
+  padding: 2rem;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: transform var(--transition), border-color var(--transition),
+              box-shadow var(--transition);
+}
+
+/* Hover: the card lifts slightly and its border picks up the accent glow */
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(86, 212, 245, 0.45);
+  box-shadow: 0 22px 44px -26px rgba(47, 123, 255, 0.65),
+              0 0 0 1px rgba(86, 212, 245, 0.12);
+}
+
+.card h3 {
+  font-size: 1.55rem;
+}
+
+.card p:last-child {
+  margin-bottom: 0;
+}
+
+.card-meta {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Achievements: two equal columns */
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.rank {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  font-variant-numeric: lining-nums;
+  line-height: 1;
+  text-shadow: 0 0 28px var(--glow);          /* soft glow on the large figures */
+}
+
+.rank-of {
+  margin: 0.5rem 0 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.achievement .card-meta {
+  margin: 0.6rem 0 0.9rem;
+}
+
+/* Research: interests as a two-column definition list -------------------- */
+.interest-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2.5rem;
+  margin-bottom: 3.5rem;
+}
+
+.interest {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.interest dt {
+  margin-bottom: 0.3rem;
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.interest dd {
+  color: var(--muted);
+  font-size: 0.975rem;
+}
+
+/* A bulleted list with custom accent markers */
+.marked-list {
+  max-width: 44em;
+  list-style: none;
+}
+
+.marked-list li {
+  position: relative;
+  margin-bottom: 0.85rem;
+  padding-left: 1.5rem;
+}
+
+.marked-list li:last-child {
+  margin-bottom: 0;
+}
+
+.marked-list li::before {
+  content: "";
+  position: absolute;
+  top: 0.8em;
+  left: 0;
+  width: 0.6rem;
+  height: 1px;
+  background-color: var(--accent);
+}
+
+/* Skills: groups in a grid, tags in a wrapping flex row ------------------ */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem;
+}
+
+.skill-group h3 {
+  margin-bottom: 0.9rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;                           /* tags wrap onto new lines as needed */
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.tag-list li {
+  padding: 0.35rem 0.75rem;
+  background-color: rgba(148, 178, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Leadership and sport: two columns of labelled rows --------------------- */
+.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3rem;
+}
+
+.detail-list {
+  list-style: none;
+}
+
+.detail-list li {
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.detail-list strong {
+  display: block;
+  color: var(--heading);
+  font-weight: 500;
+}
+
+.detail-list span {
+  color: var(--muted);
+  font-size: 0.975rem;
+}
+
+/* Qualifications: three equal columns ------------------------------------ */
+.qualification-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.qualification {
+  padding: 1.5rem;
+}
+
+.qualification h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.45rem;
+}
+
+.exam-window {
+  color: var(--accent);
+  font-size: 0.925rem;
+}
+
+.footnote {
+  max-width: 44em;
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. CONTACT AND FOOTER
+   -------------------------------------------------------------------------- */
+
+/* ID selector: only the contact section gets this glow rising from below */
+#contact {
+  background-image: radial-gradient(ellipse at 50% 120%,
+      rgba(47, 123, 255, 0.16) 0%,
+      transparent 60%);
+}
+
+.contact-intro {
+  max-width: 30em;
+  margin-bottom: 2rem;
+  color: var(--heading);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.contact-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.contact-link {
+  display: block;
+  padding: 1.5rem;
+  background-color: rgba(10, 17, 32, 0.6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.contact-link:hover {
+  border-color: rgba(86, 212, 245, 0.5);
+  box-shadow: 0 0 40px -18px var(--accent);
+}
+
+.contact-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.contact-address {
+  display: block;
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;                   /* long addresses wrap instead of overflowing */
+  transition: color var(--transition);
+}
+
+.contact-link:hover .contact-address {
+  color: var(--accent);
+}
+
+/* Footer: Flexbox pushes the two items to opposite ends */
+.site-footer {
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+}
+
+.footer-inner p {
+  margin: 0;
+}
+
+.footer-inner a {
+  color: var(--muted);
+  transition: color var(--transition);
+}
+
+.footer-inner a:hover {
+  color: var(--accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   9. RESPONSIVE RULES (media queries)
+   The desktop layout above is adjusted in two steps as the screen narrows.
+   -------------------------------------------------------------------------- */
+
+/* Tablets and small laptops: 1000px and below */
+@media (max-width: 1000px) {
+  :root {
+    --section-space: 4.5rem;
+    --header-height: 6.25rem;                /* the header is now two rows tall */
+  }
+
+  /* Navigation drops to its own row and scrolls sideways if needed */
+  .header-inner {
+    flex-wrap: wrap;
+    gap: 0;
+    padding-top: 0.7rem;
+  }
+
+  .site-nav {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;                   /* hides the scrollbar in Firefox */
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;                           /* hides the scrollbar in Chrome and Safari */
+  }
+
+  /* Hero and sections collapse from two columns to one */
+  .hero {
+    padding: 4.5rem 0;
+  }
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+
+  .profile-sheet {
+    max-width: 34rem;
+  }
+
+  .section-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .section-title {
+    position: static;                        /* no sticky heading in one column */
+    font-size: 2.1rem;
+  }
+}
+
+/* Phones: 640px and below */
+@media (max-width: 640px) {
+  :root {
+    --page-gutter: 1.25rem;
+    --section-space: 3.75rem;
+  }
+
+  body {
+    font-size: 1rem;
+  }
+
+  /* The link row is wider than a phone screen, so its right edge fades out
+     to hint that it scrolls sideways */
+  .site-nav {
+    -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent);
+    mask-image: linear-gradient(90deg, #000 86%, transparent);
+  }
+
+  .site-nav ul {
+    padding-right: 3rem;
+  }
+
+  .hero {
+    padding: 3.5rem 0 4rem;
+  }
+
+  .hero-actions .button {
+    flex: 1 1 auto;                          /* buttons share the row evenly */
+    text-align: center;
+  }
+
+  .profile-sheet {
+    padding: 1.5rem;
+  }
+
+  /* Every multi-column grid becomes a single column */
+  .achievement-grid,
+  .interest-list,
+  .skills-grid,
+  .two-column,
+  .qualification-grid,
+  .contact-links {
+    grid-template-columns: 1fr;
+  }
+
+  .skills-grid,
+  .two-column {
+    gap: 2rem;
+  }
+
+  .interest-list {
+    margin-bottom: 2.75rem;
+  }
+
+  .timeline-item {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item::before {
+    top: 0.5rem;
+  }
+
+  .sheet-row {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .rank {
+    font-size: 3.75rem;
+  }
+
+  .contact-address {
+    font-size: 1.4rem;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   10. REDUCED MOTION
+   Visitors who ask their device for less motion get no animation, no
+   transitions and no smooth scrolling.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
