@@ -312,6 +312,19 @@ a:focus-visible {
   letter-spacing: -0.01em;
 }
 
+/* Headshot: a circular portrait with a thin cyan border and a soft glow.
+   object-fit: cover fills the circle without stretching the photograph. */
+.hero-portrait {
+  width: 144px;
+  height: 144px;
+  margin-top: 2rem;
+  border: 2px solid rgba(86, 212, 245, 0.6);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 6px rgba(86, 212, 245, 0.08),
+              0 0 38px -6px var(--glow);
+}
+
 .hero-tagline {
   max-width: 24em;
   margin: 1.75rem 0 1rem;
@@ -425,7 +438,8 @@ a:focus-visible {
 .hero-text > :nth-child(2) { animation-delay: 120ms; }
 .hero-text > :nth-child(3) { animation-delay: 220ms; }
 .hero-text > :nth-child(4) { animation-delay: 320ms; }
-.profile-sheet             { animation-delay: 420ms; }
+.hero-text > :nth-child(5) { animation-delay: 420ms; }
+.profile-sheet             { animation-delay: 520ms; }
 
 
 /* --------------------------------------------------------------------------
@@ -915,6 +929,17 @@ a:focus-visible {
 
   .hero {
     padding: 3.5rem 0 4rem;
+  }
+
+  /* Smaller portrait on phones */
+  .hero-portrait {
+    width: 112px;
+    height: 112px;
+    margin-top: 1.5rem;
+  }
+
+  .hero-tagline {
+    margin-top: 1.5rem;
   }
 
   .hero-actions .button {
