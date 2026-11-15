@@ -6,7 +6,7 @@ A single-page personal resume and portfolio website built with HTML5 and CSS3 fo
 
 | Section | Content |
 | --- | --- |
-| Hero | Name, professional tagline and a profile summary panel |
+| Hero | Name, portrait, professional tagline and a profile summary panel |
 | About | A short personal introduction |
 | Education | A timeline of IIM Bangalore, Class XII and Class X |
 | Achievements | Results from two national case competitions |
@@ -38,6 +38,7 @@ resume-website/
 ├── style.css         All styling and responsive rules
 ├── README.md         This file
 └── assets/
+    ├── headshot.jpg  Portrait shown in the hero section
     ├── monogram.svg  "AK" monogram shown in the profile panel
     └── favicon.svg   Browser tab icon
 ```
@@ -63,11 +64,11 @@ The site is static, so it can be hosted on Netlify directly from this repository
 
 ## Making common updates
 
-**Replace the monogram with a photograph**
+**Change the portrait**
 
-1. Add a square photo to the `assets` folder, for example `assets/photo.jpg`.
-2. In `index.html`, find `src="assets/monogram.svg"` and change it to `src="assets/photo.jpg"`.
-3. Change the `alt` text on the same line to `Portrait of Aham Kundu`.
+1. Prepare a square photo and name it exactly `headshot.jpg`.
+2. Upload it to the `assets` folder, replacing the existing file.
+3. If the new photo looks different, update the `alt` text on the `hero-portrait` line in `index.html`.
 
 **Add a LinkedIn link**
 
